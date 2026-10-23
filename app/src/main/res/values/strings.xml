@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">AplicacionControlGastos</string>
+    <string name="registro_titulo">Control de gastos</string>
+    <string name="registro_subtitulo">Regístrate para empezar a llevar tus finanzas</string>
+    <string name="hint_nombre">Nombre</string>
+    <string name="hint_apellido">Apellido</string>
+    <string name="hint_correo">Correo electrónico</string>
+    <string name="btn_registrar">Registrar</string>
+</resources>
