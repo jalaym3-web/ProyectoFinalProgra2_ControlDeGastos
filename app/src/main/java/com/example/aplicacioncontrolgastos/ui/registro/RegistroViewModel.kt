@@ -2,11 +2,14 @@ package com.example.aplicacioncontrolgastos.ui.registro
 
 import androidx.lifecycle.ViewModel
 import android.util.Patterns
+import androidx.lifecycle.viewModelScope
+import com.example.aplicacioncontrolgastos.data.repository.UsuarioRepository
 import com.example.core.model.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 data class RegistroUiState(
     val nombre: String = "",
@@ -18,7 +21,9 @@ data class RegistroUiState(
     val registrado: Boolean = false
 )
 
-class RegistroViewModel : ViewModel() {
+class RegistroViewModel(
+    private val repository: UsuarioRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegistroUiState())
     val uiState: StateFlow<RegistroUiState> = _uiState.asStateFlow()
@@ -60,8 +65,9 @@ class RegistroViewModel : ViewModel() {
             return
         }
 
-        val usuario = Usuario(nombre = nombre, apellido = apellido, correo = correo)
-        // TODO: guardar el usuario (repositorio / base de datos)
-        _uiState.update { it.copy(registrado = true) }
+        viewModelScope.launch {
+            repository.registrar(nombre, apellido, correo)
+            _uiState.update { it.copy(registrado = true) }
+        }
     }
 }
