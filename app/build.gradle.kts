@@ -69,4 +69,5 @@ dependencies {
     implementation("androidx.room:room-ktx:2.8.5")
     ksp("androidx.room:room-compiler:2.8.5")
     val room = "2.8.5"
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
 }

@@ -19,7 +19,7 @@ data class RegistroUiState(
     val errorApellido: String? = null,
     val errorCorreo: String? = null,
     val registrado: Boolean = false,
-    val verificando: Boolean = true
+    val usuarioId: Long = 0
 )
 
 
@@ -31,15 +31,7 @@ class RegistroViewModel(
     private val _uiState = MutableStateFlow(RegistroUiState())
     val uiState: StateFlow<RegistroUiState> = _uiState.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            val existente = repository.obtenerUsuario()
-            _uiState.update {
-                if (existente != null) it.copy(registrado = true, verificando = false)
-                else it.copy(verificando = false)
-            }
-        }
-    }
+
 
     fun onNombreChange(valor: String) {
         _uiState.update { it.copy(nombre = valor, errorNombre = null) }
@@ -79,8 +71,8 @@ class RegistroViewModel(
         }
 
         viewModelScope.launch {
-            repository.registrar(nombre, apellido, correo)
-            _uiState.update { it.copy(registrado = true) }
+            val usuario = repository.registrar(nombre, apellido, correo)
+            _uiState.update { it.copy(registrado = true, usuarioId = usuario.id) }
         }
     }
 }

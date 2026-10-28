@@ -30,6 +30,9 @@
         <activity
             android:name=".ui.gastos.GastosActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.seleccion.SeleccionUsuarioActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

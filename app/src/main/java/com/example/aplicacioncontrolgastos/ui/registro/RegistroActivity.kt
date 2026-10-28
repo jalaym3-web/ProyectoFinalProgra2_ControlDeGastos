@@ -39,14 +39,15 @@ class RegistroActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
-                    binding.root.visibility = if (state.verificando) View.INVISIBLE else View.VISIBLE
 
                     binding.tilNombre.error = state.errorNombre
                     binding.tilApellido.error = state.errorApellido
                     binding.tilCorreo.error = state.errorCorreo
 
                     if (state.registrado) {
-                        startActivity(Intent(this@RegistroActivity, GastosActivity::class.java))
+                        val intent = Intent(this@RegistroActivity, GastosActivity::class.java)
+                            .putExtra("usuarioId", state.usuarioId)
+                        startActivity(intent)
                         finish()
                     }
                 }

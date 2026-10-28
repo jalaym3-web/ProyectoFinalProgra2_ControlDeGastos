@@ -12,7 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.aplicacioncontrolgastos.ui.theme.AplicacionControlGastosTheme
 
+
 class GastosActivity : ComponentActivity() {
+
+    private val usuarioId: Long by lazy { intent.getLongExtra("usuarioId", -1L) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
