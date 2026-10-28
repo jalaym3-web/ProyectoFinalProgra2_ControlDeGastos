@@ -14,3 +14,6 @@ interface MovimientoDao {
     @Query("SELECT * FROM movimientos WHERE usuarioId = :usuarioId")
     fun movimientosDe(usuarioId: Long): Flow<List<MovimientoEntity>>
 }
+
+@Query("DELETE FROM movimientos WHERE id = :id")
+suspend fun eliminarPorId(id: Long)
