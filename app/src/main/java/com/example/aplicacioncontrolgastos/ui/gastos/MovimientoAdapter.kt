@@ -17,8 +17,9 @@ fun formatearFecha(millis: Long): String =
 
 
 class MovimientoAdapter(
-    private val onLongClick: (Movimiento) -> Unit
-) : ListAdapter<Movimiento, MovimientoAdapter.VH>(Diff)  {
+    private val onEditar: (Movimiento) -> Unit,
+    private val onEliminar: (Movimiento) -> Unit
+) : ListAdapter<Movimiento, MovimientoAdapter.VH>(Diff) {
 
     class VH(val binding: ItemMovimientoBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -35,8 +36,9 @@ class MovimientoAdapter(
         holder.binding.tvFecha.text = formato.format(Date(mov.fecha))
         holder.binding.tvMonto.text = "$signo ${"%.2f".format(mov.monto)}"
 
+        holder.binding.root.setOnClickListener { onEditar(mov) }
         holder.binding.root.setOnLongClickListener {
-            onLongClick(mov)
+            onEliminar(mov)
             true
         }
         }

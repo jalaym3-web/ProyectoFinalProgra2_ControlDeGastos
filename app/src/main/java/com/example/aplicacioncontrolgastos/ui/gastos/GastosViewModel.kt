@@ -1,10 +1,12 @@
 package com.example.aplicacioncontrolgastos.ui.gastos
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.aplicacioncontrolgastos.data.local.MovimientoEntity
-import com.example.aplicacioncontrolgastos.data.repository.MovimientoRepository
+import com.example.aplicacioncontrolgastos.data.local.AppDatabase
+import com.example.aplicacioncontrolgastos.data.repository.MovimientoRepositoryImpl
+import com.example.core.model.FiltroMovimientos
 import com.example.core.model.Movimiento
 import com.example.core.model.TipoMovimiento
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,12 +16,24 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-
-enum class FiltroMovimientos { TODOS, GASTOS, INGRESOS }
+import com.example.core.repository.MovimientoRepository
+import com.example.core.usecase.AgregarMovimientoUseCase
+import com.example.core.usecase.CalcularResumenUseCase
+import com.example.core.usecase.EditarMovimientoUseCase
+import com.example.core.usecase.EliminarMovimientoUseCase
+import com.example.core.usecase.FiltrarMovimientosUseCase
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 class GastosViewModel(
     private val repository: MovimientoRepository,
-    private val usuarioId: Long
+    private val usuarioId: Long,
+    private val agregarMovimiento: AgregarMovimientoUseCase = AgregarMovimientoUseCase(repository),
+    private val editarMovimiento: EditarMovimientoUseCase = EditarMovimientoUseCase(repository),
+    private val eliminarMovimiento: EliminarMovimientoUseCase = EliminarMovimientoUseCase(repository),
+    private val filtrarMovimientos: FiltrarMovimientosUseCase = FiltrarMovimientosUseCase(),
+    private val calcularResumen: CalcularResumenUseCase = CalcularResumenUseCase()
 ) : ViewModel() {
 
     private val todos: StateFlow<List<Movimiento>> = repository.movimientosDe(usuarioId)
@@ -27,52 +41,71 @@ class GastosViewModel(
 
     private val _filtro = MutableStateFlow(FiltroMovimientos.TODOS)
 
-    // Lista que ve la pantalla, según la pestaña elegida
-    val movimientos: StateFlow<List<Movimiento>> = combine(todos, _filtro) { lista, filtro ->
-        when (filtro) {
-            FiltroMovimientos.TODOS -> lista
-            FiltroMovimientos.GASTOS -> lista.filter { it.tipo == TipoMovimiento.GASTO }
-            FiltroMovimientos.INGRESOS -> lista.filter { it.tipo == TipoMovimiento.INGRESO }
-        }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val movimientos: StateFlow<List<Movimiento>> =
+        combine(todos, _filtro) { lista, filtro -> filtrarMovimientos(lista, filtro) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val totalIngresos: StateFlow<Double> = todos
-        .map { l -> l.filter { it.tipo == TipoMovimiento.INGRESO }.sumOf { it.monto } }
+    private val resumen = todos.map { calcularResumen(it) }
+
+    val totalIngresos: StateFlow<Double> = resumen.map { it.totalIngresos }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    val totalGastos: StateFlow<Double> = todos
-        .map { l -> l.filter { it.tipo == TipoMovimiento.GASTO }.sumOf { it.monto } }
+    val totalGastos: StateFlow<Double> = resumen.map { it.totalGastos }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    val balance: StateFlow<Double> = combine(totalIngresos, totalGastos) { i, g -> i - g }
+    val balance: StateFlow<Double> = resumen.map { it.balance }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    fun filtrar(filtro: FiltroMovimientos) { _filtro.value = filtro }
+    // Mensajes de error para mostrar en pantalla (Toast, Snackbar, etc.)
+    private val _error = MutableSharedFlow<String>()
+    val error: SharedFlow<String> = _error.asSharedFlow()
+
+    fun filtrar(filtro: FiltroMovimientos) {
+        _filtro.value = filtro
+    }
+
     fun agregar(descripcion: String, monto: Double, tipo: TipoMovimiento) {
         viewModelScope.launch {
-            repository.agregar(
-                Movimiento(
-                    usuarioId = usuarioId,
-                    tipo = tipo,
-                    monto = monto,
-                    descripcion = descripcion,
-                    fecha = System.currentTimeMillis()
-                )
+            val movimiento = Movimiento(
+                usuarioId = usuarioId,
+                tipo = tipo,
+                monto = monto,
+                descripcion = descripcion,
+                fecha = System.currentTimeMillis()
             )
+            agregarMovimiento(movimiento).onFailure {
+                _error.emit(
+                    it.message ?: "Error al guardar"
+                )
+            }
         }
+    }
+
+    fun editar(original: Movimiento, descripcion: String, monto: Double, tipo: TipoMovimiento) {
+        viewModelScope.launch {
+            val editado = original.copy(descripcion = descripcion, monto = monto, tipo = tipo)
+            editarMovimiento(editado).onFailure { _error.emit(it.message ?: "Error al editar") }
+        }
+    }
+
+    fun eliminar(movimientoId: Long) {
+        viewModelScope.launch { eliminarMovimiento(movimientoId) }
     }
 
 
     fun eliminar(movimiento: Movimiento) {
         viewModelScope.launch { repository.eliminar(movimiento.id) }
     }
-}
 
-class GastosViewModelFactory(
-    private val repository: MovimientoRepository,
-    private val usuarioId: Long
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T =
-        GastosViewModel(repository, usuarioId) as T
+
+    class GastosViewModelFactory(
+        private val repository: MovimientoRepository,
+        private val usuarioId: Long
+    ) : ViewModelProvider.Factory {
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return GastosViewModel(repository, usuarioId) as T
+        }
+    }
 }

@@ -4,13 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.aplicacioncontrolgastos.data.local.MovimientoDao
-import com.example.aplicacioncontrolgastos.data.local.MovimientoEntity
-import com.example.aplicacioncontrolgastos.data.local.UsuarioDao
-import com.example.aplicacioncontrolgastos.data.local.UsuarioEntity
-import com.example.core.model.Usuario
-import com.example.core.model.Movimiento
-@Database(entities = [UsuarioEntity::class, MovimientoEntity::class], version = 1)
+
+@Database(entities = [UsuarioEntity::class, MovimientoEntity::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun usuarioDao(): UsuarioDao
     abstract fun movimientoDao(): MovimientoDao

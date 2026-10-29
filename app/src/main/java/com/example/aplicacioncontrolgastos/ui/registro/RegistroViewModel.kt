@@ -1,9 +1,10 @@
 package com.example.aplicacioncontrolgastos.ui.registro
 
 import androidx.lifecycle.ViewModel
-import android.util.Patterns
 import androidx.lifecycle.viewModelScope
-import com.example.aplicacioncontrolgastos.data.repository.UsuarioRepositoryImpl
+import com.example.core.repository.UsuarioRepository
+import com.example.core.usecase.RegistrarUsuarioUseCase
+import com.example.core.usecase.ResultadoRegistro
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +25,8 @@ data class RegistroUiState(
 
 
 class RegistroViewModel(
-    private val repository: UsuarioRepositoryImpl
+    private val repository: UsuarioRepository,
+    private val registrarUsuario: RegistrarUsuarioUseCase = RegistrarUsuarioUseCase(repository)
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegistroUiState())
@@ -46,32 +48,20 @@ class RegistroViewModel(
 
     fun registrar() {
         val estado = _uiState.value
-        val nombre = estado.nombre.trim()
-        val apellido = estado.apellido.trim()
-        val correo = estado.correo.trim()
-
-        val errorNombre = if (nombre.isEmpty()) "El nombre es obligatorio" else null
-        val errorApellido = if (apellido.isEmpty()) "El apellido es obligatorio" else null
-        val errorCorreo = when {
-            correo.isEmpty() -> "El correo es obligatorio"
-            !Patterns.EMAIL_ADDRESS.matcher(correo).matches() -> "Correo no válido"
-            else -> null
-        }
-
-        if (errorNombre != null || errorApellido != null || errorCorreo != null) {
-            _uiState.update {
-                it.copy(
-                    errorNombre = errorNombre,
-                    errorApellido = errorApellido,
-                    errorCorreo = errorCorreo
-                )
-            }
-            return
-        }
-
         viewModelScope.launch {
-            val usuario = repository.registrar(nombre, apellido, correo)
-            _uiState.update { it.copy(registrado = true, usuarioId = usuario.id) }
+            when (val resultado = registrarUsuario(estado.nombre, estado.apellido, estado.correo)) {
+                is ResultadoRegistro.Invalido -> _uiState.update {
+                    it.copy(
+                        errorNombre = resultado.errores.nombre,
+                        errorApellido = resultado.errores.apellido,
+                        errorCorreo = resultado.errores.correo
+                    )
+                }
+
+                is ResultadoRegistro.Exito -> _uiState.update {
+                    it.copy(registrado = true, usuarioId = resultado.usuario.id)
+                }
+            }
         }
     }
 }

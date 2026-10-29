@@ -1,5 +1,6 @@
 package com.example.aplicacioncontrolgastos.ui.gastos
 
+import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -12,14 +13,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.aplicacioncontrolgastos.data.local.AppDatabase
-import com.example.aplicacioncontrolgastos.data.repository.MovimientoRepository
+import com.example.aplicacioncontrolgastos.data.repository.MovimientoRepositoryImpl
 import com.example.aplicacioncontrolgastos.databinding.ActivityGastosBinding
 import com.example.aplicacioncontrolgastos.databinding.DialogMovimientoBinding
+import com.example.core.model.FiltroMovimientos
 import com.example.core.model.Movimiento
 import com.example.core.model.TipoMovimiento
 import kotlinx.coroutines.launch
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.flow.combine
+
 
 
 
@@ -32,19 +35,16 @@ class GastosActivity : AppCompatActivity() {
 
     private val viewModel: GastosViewModel by viewModels {
         val db = AppDatabase.get(applicationContext)
-        GastosViewModelFactory(MovimientoRepository(db.movimientoDao()), usuarioId)
+        GastosViewModel.GastosViewModelFactory(
+            MovimientoRepositoryImpl(db.movimientoDao()),
+            usuarioId
+        )
     }
 
-    private fun confirmarEliminar(movimiento: Movimiento) {
-        AlertDialog.Builder(this)
-            .setTitle("Eliminar movimiento")
-            .setMessage("¿Eliminar \"${movimiento.descripcion}\"?")
-            .setPositiveButton("Eliminar") { _, _ -> viewModel.eliminar(movimiento) }
-            .setNegativeButton("Cancelar", null)
-            .show()
-    }
-
-    val adapter = MovimientoAdapter { movimiento -> confirmarEliminar(movimiento) }
+    private val adapter = MovimientoAdapter(
+        onEditar = { mostrarFormulario(it) },
+        onEliminar = { confirmarEliminar(it) }
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +57,6 @@ class GastosActivity : AppCompatActivity() {
         binding = ActivityGastosBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val adapter = MovimientoAdapter { movimiento -> confirmarEliminar(movimiento) }
         binding.rvMovimientos.layoutManager = LinearLayoutManager(this)
         binding.rvMovimientos.adapter = adapter
 
@@ -92,17 +91,43 @@ class GastosActivity : AppCompatActivity() {
                                 "Ingresos: ${"%.2f".format(ingresos)}  |  Gastos: ${"%.2f".format(gastos)}"
                         }
                 }
+                launch {
+                    viewModel.error.collect {
+                        Toast.makeText(this@GastosActivity, it, Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }
 
-    private fun mostrarFormulario() {
+    private fun confirmarEliminar(movimiento: Movimiento) {
+        AlertDialog.Builder(this)
+            .setTitle("Eliminar movimiento")
+            .setMessage("¿Eliminar \"${movimiento.descripcion}\"?")
+            .setPositiveButton("Eliminar") { _, _ -> viewModel.eliminar(movimiento.id) }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun mostrarFormulario(existente: Movimiento? = null) {
         val dialogBinding = DialogMovimientoBinding.inflate(layoutInflater)
 
-        AlertDialog.Builder(this)
-            .setTitle("Nuevo movimiento")
+        if (existente != null) {
+            dialogBinding.etDescripcion.setText(existente.descripcion)
+            dialogBinding.etMonto.setText(existente.monto.toString())
+            if (existente.tipo == TipoMovimiento.INGRESO) dialogBinding.rbIngreso.isChecked = true
+            else dialogBinding.rbGasto.isChecked = true   // ajusta el id al de tu XML
+        }
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(if (existente == null) "Nuevo movimiento" else "Editar movimiento")
             .setView(dialogBinding.root)
-            .setPositiveButton("Guardar") { _, _ ->
+            .setPositiveButton("Guardar", null)
+            .setNegativeButton("Cancelar", null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
                 val descripcion = dialogBinding.etDescripcion.text.toString().trim()
                 val monto = dialogBinding.etMonto.text.toString().toDoubleOrNull()
                 val tipo = if (dialogBinding.rbIngreso.isChecked) TipoMovimiento.INGRESO
@@ -111,12 +136,12 @@ class GastosActivity : AppCompatActivity() {
                 if (descripcion.isEmpty() || monto == null || monto <= 0) {
                     Toast.makeText(this, "Revisa la descripción y el monto", Toast.LENGTH_SHORT).show()
                 } else {
-                    viewModel.agregar(descripcion, monto, tipo)
+                    if (existente == null) viewModel.agregar(descripcion, monto, tipo)
+                    else viewModel.editar(existente, descripcion, monto, tipo)
+                    dialog.dismiss()
                 }
             }
-            .setNegativeButton("Cancelar", null)
-            .show()
+        }
+        dialog.show()
     }
-
-
 }
