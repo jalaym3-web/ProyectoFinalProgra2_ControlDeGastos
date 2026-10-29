@@ -12,8 +12,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+fun formatearFecha(millis: Long): String =
+    SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(millis))
 
-class MovimientoAdapter : ListAdapter<Movimiento, MovimientoAdapter.VH>(Diff) {
+
+class MovimientoAdapter(
+    private val onLongClick: (Movimiento) -> Unit
+) : ListAdapter<Movimiento, MovimientoAdapter.VH>(Diff)  {
 
     class VH(val binding: ItemMovimientoBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -29,7 +34,12 @@ class MovimientoAdapter : ListAdapter<Movimiento, MovimientoAdapter.VH>(Diff) {
         holder.binding.tvDescripcion.text = mov.descripcion
         holder.binding.tvFecha.text = formato.format(Date(mov.fecha))
         holder.binding.tvMonto.text = "$signo ${"%.2f".format(mov.monto)}"
-    }
+
+        holder.binding.root.setOnLongClickListener {
+            onLongClick(mov)
+            true
+        }
+        }
 
     object Diff : DiffUtil.ItemCallback<Movimiento>() {
         override fun areItemsTheSame(a: Movimiento, b: Movimiento) = a.id == b.id

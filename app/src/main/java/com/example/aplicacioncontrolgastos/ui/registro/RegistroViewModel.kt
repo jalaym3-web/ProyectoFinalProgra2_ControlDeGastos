@@ -3,8 +3,7 @@ package com.example.aplicacioncontrolgastos.ui.registro
 import androidx.lifecycle.ViewModel
 import android.util.Patterns
 import androidx.lifecycle.viewModelScope
-import com.example.aplicacioncontrolgastos.data.repository.UsuarioRepository
-import com.example.core.model.Usuario
+import com.example.aplicacioncontrolgastos.data.repository.UsuarioRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +24,7 @@ data class RegistroUiState(
 
 
 class RegistroViewModel(
-    private val repository: UsuarioRepository
+    private val repository: UsuarioRepositoryImpl
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegistroUiState())

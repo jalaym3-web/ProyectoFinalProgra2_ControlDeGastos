@@ -10,7 +10,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.aplicacioncontrolgastos.data.local.AppDatabase
 import com.example.aplicacioncontrolgastos.ui.gastos.GastosActivity
-import com.example.aplicacioncontrolgastos.data.repository.UsuarioRepository
+import com.example.aplicacioncontrolgastos.data.repository.UsuarioRepositoryImpl
 import com.example.aplicacioncontrolgastos.databinding.ActivitySeleccionUsuarioBinding
 import com.example.aplicacioncontrolgastos.ui.registro.RegistroActivity
 import kotlinx.coroutines.launch
@@ -21,7 +21,7 @@ class SeleccionUsuarioActivity : AppCompatActivity() {
 
     private val viewModel: SeleccionUsuarioViewModel by viewModels {
         val db = AppDatabase.get(applicationContext)
-        SeleccionUsuarioViewModelFactory(UsuarioRepository(db.usuarioDao()))
+        SeleccionUsuarioViewModelFactory(UsuarioRepositoryImpl(db.usuarioDao()))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

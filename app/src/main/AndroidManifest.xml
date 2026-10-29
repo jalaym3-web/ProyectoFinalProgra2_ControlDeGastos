@@ -12,27 +12,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AplicacionControlGastos">
         <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AplicacionControlGastos"
-            android:windowSoftInputMode="adjustResize">
+            android:name=".ui.seleccion.SeleccionUsuarioActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.registro.RegistroActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:exported="false" />
+
         <activity
             android:name=".ui.gastos.GastosActivity"
             android:exported="false" />
-        <activity
-            android:name=".ui.seleccion.SeleccionUsuarioActivity"
-            android:exported="true" />
+
     </application>
 
 </manifest>

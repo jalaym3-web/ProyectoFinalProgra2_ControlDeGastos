@@ -15,4 +15,10 @@ class MovimientoRepository(private val dao: MovimientoDao) {
 
     fun movimientosDe(usuarioId: Long): Flow<List<Movimiento>> =
         dao.movimientosDe(usuarioId).map { lista -> lista.map { it.toDomain() } }
+
+    suspend fun eliminar(movimientoId: Long) {
+        dao.eliminarPorId(movimientoId)
+    }
+
 }
+
