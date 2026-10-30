@@ -23,5 +23,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "AplicacionControlGastos"
-include(":app")
+include(":ui")
 include(":core")
