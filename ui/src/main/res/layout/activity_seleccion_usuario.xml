@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="¿Quién eres?"
+        android:text="@string/qui_n_eres"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp" />
@@ -23,5 +23,5 @@
         android:id="@+id/btnNuevoUsuario"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nuevo usuario" />
+        android:text="@string/nuevo_usuario" />
 </LinearLayout>

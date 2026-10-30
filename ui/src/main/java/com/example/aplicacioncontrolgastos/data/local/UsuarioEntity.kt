@@ -1,9 +1,9 @@
 package com.example.aplicacioncontrolgastos.data.local
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.core.model.Usuario
-import androidx.room.Index
 
 @Entity(
     tableName = "usuarios",   // deja el nombre que ya tienes
@@ -21,7 +21,6 @@ fun UsuarioEntity.toDomain() = Usuario(
     nombre = nombre,
     apellido = apellido,
     correo = correo,
-    movimientos = emptyList()   // luego los cargamos desde MovimientoDao
 )
 
 fun Usuario.toEntity() = UsuarioEntity(

@@ -8,10 +8,10 @@ import com.example.core.usecase.AgregarMovimientoUseCase
 import com.example.core.usecase.CalcularResumenUseCase
 import com.example.core.usecase.EditarMovimientoUseCase
 import com.example.core.usecase.FiltrarMovimientosUseCase
-import org.junit.Test
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import kotlinx.coroutines.runBlocking
+import org.junit.Test
 
 class MovimientoUseCasesTest {
 
@@ -82,5 +82,12 @@ class MovimientoUseCasesTest {
             movimiento(tipo = TipoMovimiento.GASTO, monto = 120.0)
         )
         assertEquals(380.0, CalcularResumenUseCase()(lista).balance, 0.001)
+    }
+
+    @Test
+    fun `agregar rechaza monto NaN`(): Unit = runBlocking {
+        val resultado = AgregarMovimientoUseCase(repo)(movimiento(monto = Double.NaN))
+        assertTrue(resultado.isFailure)
+        assertTrue(repo.guardados.isEmpty())
     }
 }

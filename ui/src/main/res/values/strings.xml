@@ -6,4 +6,14 @@
     <string name="hint_apellido">Apellido</string>
     <string name="hint_correo">Correo electrónico</string>
     <string name="btn_registrar">Registrar</string>
+    <string name="monto">Monto</string>
+    <string name="descripci_n">Descripción</string>
+    <string name="gasto">Gasto</string>
+    <string name="ingreso">Ingreso</string>
+    <string name="qui_n_eres">¿Quién eres?</string>
+    <string name="nuevo_usuario">Nuevo usuario</string>
+    <string name="todos">Todos</string>
+    <string name="gastos">Gastos</string>
+    <string name="ingresos">Ingresos</string>
+    <string name="agregar_movimiento">Agregar movimiento</string>
 </resources>

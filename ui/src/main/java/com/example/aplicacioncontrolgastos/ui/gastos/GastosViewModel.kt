@@ -1,21 +1,11 @@
 package com.example.aplicacioncontrolgastos.ui.gastos
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.aplicacioncontrolgastos.data.local.AppDatabase
-import com.example.aplicacioncontrolgastos.data.repository.MovimientoRepositoryImpl
 import com.example.core.model.FiltroMovimientos
 import com.example.core.model.Movimiento
 import com.example.core.model.TipoMovimiento
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import com.example.core.repository.MovimientoRepository
 import com.example.core.usecase.AgregarMovimientoUseCase
 import com.example.core.usecase.CalcularResumenUseCase
@@ -23,8 +13,15 @@ import com.example.core.usecase.EditarMovimientoUseCase
 import com.example.core.usecase.EliminarMovimientoUseCase
 import com.example.core.usecase.FiltrarMovimientosUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class GastosViewModel(
     private val repository: MovimientoRepository,

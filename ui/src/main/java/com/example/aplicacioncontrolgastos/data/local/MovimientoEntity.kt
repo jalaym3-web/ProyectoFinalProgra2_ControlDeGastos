@@ -1,9 +1,9 @@
 package com.example.aplicacioncontrolgastos.data.local
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
 import androidx.room.Index
+import androidx.room.PrimaryKey
 import com.example.core.model.Movimiento
 import com.example.core.model.TipoMovimiento
 

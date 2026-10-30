@@ -16,14 +16,14 @@ import com.example.aplicacioncontrolgastos.data.local.AppDatabase
 import com.example.aplicacioncontrolgastos.data.repository.MovimientoRepositoryImpl
 import com.example.aplicacioncontrolgastos.databinding.ActivityGastosBinding
 import com.example.aplicacioncontrolgastos.databinding.DialogMovimientoBinding
+import com.example.aplicacioncontrolgastos.util.aMontoOrNull
 import com.example.core.model.FiltroMovimientos
 import com.example.core.model.Movimiento
 import com.example.core.model.TipoMovimiento
-import kotlinx.coroutines.launch
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.flow.combine
-
-
+import kotlinx.coroutines.launch
+import java.util.Locale
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -114,9 +114,9 @@ class GastosActivity : AppCompatActivity() {
 
         if (existente != null) {
             dialogBinding.etDescripcion.setText(existente.descripcion)
-            dialogBinding.etMonto.setText(existente.monto.toString())
+            dialogBinding.etMonto.setText(String.format(Locale.US, "%.2f", existente.monto))
             if (existente.tipo == TipoMovimiento.INGRESO) dialogBinding.rbIngreso.isChecked = true
-            else dialogBinding.rbGasto.isChecked = true   // ajusta el id al de tu XML
+            else dialogBinding.rbGasto.isChecked = true
         }
 
         val dialog = AlertDialog.Builder(this)
@@ -129,7 +129,7 @@ class GastosActivity : AppCompatActivity() {
         dialog.setOnShowListener {
             dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
                 val descripcion = dialogBinding.etDescripcion.text.toString().trim()
-                val monto = dialogBinding.etMonto.text.toString().toDoubleOrNull()
+                val monto = dialogBinding.etMonto.text.toString().aMontoOrNull()
                 val tipo = if (dialogBinding.rbIngreso.isChecked) TipoMovimiento.INGRESO
                 else TipoMovimiento.GASTO
 

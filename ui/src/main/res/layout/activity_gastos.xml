@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -27,17 +28,17 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Todos" />
+            android:text="@string/todos" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gastos" />
+            android:text="@string/gastos" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ingresos" />
+            android:text="@string/ingresos" />
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -50,5 +51,5 @@
         android:id="@+id/btnAgregar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Agregar movimiento" />
+        android:text="@string/agregar_movimiento" />
 </LinearLayout>

@@ -11,9 +11,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.aplicacioncontrolgastos.data.local.AppDatabase
 import com.example.aplicacioncontrolgastos.data.repository.UsuarioRepositoryImpl
-import kotlinx.coroutines.launch
 import com.example.aplicacioncontrolgastos.databinding.ActivityRegistroBinding
 import com.example.aplicacioncontrolgastos.ui.gastos.GastosActivity
+import kotlinx.coroutines.launch
 
 
 class RegistroActivity : AppCompatActivity() {

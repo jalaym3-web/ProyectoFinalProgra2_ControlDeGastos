@@ -1,7 +1,7 @@
 package com.example.core.usecase
 
-import com.example.core.repository.MovimientoRepository
 import com.example.core.model.Movimiento
+import com.example.core.repository.MovimientoRepository
 
 // EditarMovimientoUseCase.kt
 class EditarMovimientoUseCase(private val repository: MovimientoRepository) {
